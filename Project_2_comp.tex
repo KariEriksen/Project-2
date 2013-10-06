@@ -11,7 +11,7 @@
 \usepackage{tabularx}
 \usepackage{tabulary}
 
-\title{Project 2, Computational Physics}
+\title{Computational Physics, Project 2}
 \author{Vilde Eide Skingen & Kari Eriksen}
 
 \begin{document}
@@ -31,7 +31,7 @@ In project 2, we look at the harmoinc oscillator with coulomb-potential. We wish
 
 Finding the eigenvalues of the harmonic-oscillator wavefunction, can be found analytically and we already know them. But how to find them numerically?
 
-Our task in this project is to solve Scr\"odinger's equation for two electrons in a three-dimensional oscillator well with and without the repulsive Coulomb interaction. We are going to solve this equation by reformulating it in a discretized form as an eigenvalue equation to be solved with Jacobi's method. We want to find how much data we need to use before getting tolerable values. First we must find the algorithm to solve this with Jocobi's method. Then we find the amount of iterations. 
+Our task in this project is to solve Scr\"odinger's equation for two electrons in a three-dimensional oscillator well with and without the repulsive Coulomb interaction. We are going to solve this equation by reformulating it in a discretized form as an eigenvalue equation to be solved with Jacobi's method. We want to find how much data we need to use before getting as good an approximation as we want. First we must find the algorithm to solve this with Jocobi's method. Then we find the amount of iterations. 
 The eigenvector problem we solve, using a build-in function from Armadillo library called eig\_sym. 
 
 The method we have used, follows. Later we present our results, and last we have a discussion of our findings.
@@ -39,7 +39,7 @@ The method we have used, follows. Later we present our results, and last we have
 \subsection{Theory}
 
 We want to solve the eigenvalue problem for both the one-particle problem and the two-particle problem. We need an expression for both cases. 
-What we esensially need to do, is solve the Scr\"odinger equation by making it dimensionless. 
+What we essensially need to do, is solve the Scr\"odinger equation by making it dimensionless. 
 
 The radial part of the wave function, $R(r)$, is a solution to 
 \\
@@ -110,20 +110,21 @@ This looks very much like the one for the one-electron. Only we have a new term 
 
 Introducing a dimensionless variable $\rho = \frac{r}{\alpha}$ and the frecuency $\omega_r^2 = \frac{1}{4}\frac{mk}{\hbar^2}\alpha^4$ we end up with 
 $$-\frac{d^2}{d\rho^2} \psi(\rho) + \omega_r^2\rho^2\psi(\rho) +\frac{1}{\rho}\psi(\rho) = \lambda \psi(\rho).$$
-The only differens between the first and the second solution of the Schr\2odinger equation, one-  and two-particel problem respectivly, is a new term for the potential.
+The only differens between the first and the second solution of the Schr\"odinger equation, one-  and two-particel problem respectivly, is a new term for the potential.
 For the one electron the potential was $\rho^2$, and for the two electrons it became $\omega_r^2\rho^2 + \frac{1}{\rho}$.
 
 This is essensially what we wish to solve, using Jacobi's method.
-To do so we must write an algorithm that can take a symmetric matrix, transform it to a diagonal matrix, where essentially all the diagonal elements are to be the eigenvalues of the given Hamiltonian. Or the Schr\"odinger equation we wish to solve. 
+To do so we must write an algorithm that can take a symmetric matrix, transform it to a diagonal matrix, where all the diagonal elements are to be the eigenvalues of the given Hamiltonian. Or the Schr\"odinger equation we are solving. 
 
 
 \subsection{Method}
-In our algorithm we make a function $off-diagonal$ that takes as argument the matrix A, the index variables k and l, and the matrix dimension n. Both A and the index variables are given by address. In this function we run over the non-diagonal elements to find the biggest value of these. When having done so, we save the index for this value in the variables k and l. The function returns the maximum value. 
 
-As long as the maximum value is bigger than our chosen error limit, $\epsilon = 1*10^-8$, we run our $rotation$ function. This function performs the Jacobi rotation. The biggest off-diagonal value is set to zero and, as an effect of the rotation, the belonging row and column is affected as well. Our goal is to do the rotations so that all the non-diagonal elements is zero. We plead satisfied when our biggest off-diagonal matrix element is smaller than our chosen limit $\epsilon$. We then have our eigenvalues on the diagonal of the matrix.
- 
-The eigenvalues are not ordered after value. So to find our three lowest eigenvalues we make a vector with the eigenvalues, and use the functionality $sort$ to get them into order. We then print the first three values of the matrix.
- 
+To write the algorithm for Jacobi's method, we need to solve some equations for which are to be used in what is called Jacobi rotation. When performing the Jacobi rotation, or the Jacobi transformation as we call it, on our symmertric matrix A, we try to put all the non-diagonal elements of the matrix to zero. This is possible by applying similarity transformation on A. 
+
+$${\bf S^{-1}}{\bf A}{\bf S} = {\bf D}$$
+
+
+We see that this gives us the diagonal matrix D, where the diagonal holds the eigenvalues.
 
 
 We define the quantities $tan(\theta) = t = \frac{s}{c}$, with $s=sin(\theta)$ and $c = cos(\theta)$ and 
@@ -135,10 +136,8 @@ $$2\tau = \frac{1}{t} - t \hspace{5mm} \mid *t $$
 $$t^2 + 2\tau t - 1 = 0 \Rightarrow t = -\tau \pm \sqrt{1+\tau^2} $$
 
 
-Why we should choose $t$ to be the smaller of the roots:
-When doing the Jacobi transformation, we pick out the greatest non-diagonal element and set it equal to zero.
-(side 216)
-When changing this element we involuntary change the other elements on the same column and row. Ideally these elements would stay zero. We want the change in these elements to be as small as possible. 
+When doing the Jacobi transformation on A, we pick out the greatest non-diagonal element and set it equal to zero.
+When changing this element we involuntary change the other elements on the same column and row. Ideally these elements would stay zero. We want the change in these elements to be as small as possible. Thus we should choose $t$ to be the smaller of the roots.
 
 Largest element:
 $$ {b_k}_l = ({a_k}_k - {a_l}_l) cos(\theta) + {a_k}_l(cos(\theta)^2 - sin(\theta)^2$$
@@ -163,16 +162,28 @@ $$\tau<0:$$
 $$(-\tau - \sqrt{1 + \tau^2}) * \frac{\tau - \sqrt{1+\tau^2}}{\tau + \sqrt{1-\tau^2}} = \frac{-1}{\-tau + \sqrt{1+\tau^2}}$$
 
 By this we see that the largest value we will get for $\mid tan(\theta) \mid = 1$. And thus we know that the largest value for the absolute value of the angle must be $\frac{\pi}{4}$. \\ 
+
+
+In our algorithm we make a function $off-diagonal$ that takes as argument the matrix A, the index variables k and l, and the matrix dimension n. Both A and the index variables are given by address. In this function we run over the non-diagonal elements to find the biggest value of these. When having done so, we save the index for this value in the variables k and l. The function returns the maximum value. 
+
+As long as the maximum value is bigger than our chosen error limit, $\epsilon = 1*10^-8$, we run our $rotation$ function. This function performs the Jacobi rotation. The biggest off-diagonal value is set to zero and, as an effect of the rotation, the belonging row and column is affected as well. Our goal is to do the rotations so that all the non-diagonal elements is zero. We plead satisfied when our biggest off-diagonal matrix element is smaller than our chosen limit $\epsilon$. We then have our eigenvalues on the diagonal of the matrix.
+ 
+The eigenvalues are not ordered after value. So to find our three lowest eigenvalues we make a vector with the eigenvalues, and use the functionality $sort$ to get them into order. We then print the first three values of the matrix.
+
+To find the eigenvalues and eigenfunctions of the two-electron wavefunction we used, as for the one-electron case, the armadillo function $eig\_sym$. We passed the eigenvectors that corresponds to the three lowest eigenvalues to a file $data.dat$ and made a python script that read out and plotted these vectors against its index. To make it easy to change variables we compiled, ran and gave the values of $n$, $\omega$ and $\rho$ from within our python script.    
+ 
+
+
+
   
 
 \subsection{Results}
+
 In three dimensions the eigenvalues for $l=0$ are $\lambda_0 = 3, \lambda_1 = 7, \lambda_2 = 11,...$ We want to find out how many points $n_{step}$ that is needed to get the three lowest eigenvalues with four leading digits. When running our program we see that it is first for $n_{step} = 196$ we get the wanted precision. 
- 
-With our choice of tolerance ($\epsilon = 1*10^{-8}$) our program runs $63376$ times to reach the given precision. We see that if we decrease our $\epsilon$, the rotation must be performed more times to achieve the same precision. 
 
-Running for different $n-values$ we see that the number of Jacobi rotations needed increases as $n$ increases.
-
-\begin{center}
+\begin{table} [h!]
+\caption{Needed similarity transformations for different n}
+\centering
 \begin{tabular}{l |  l }
 n & counter \\
 10 & 112   \\
@@ -181,25 +192,23 @@ n & counter \\
 100 & 16178 \\
 200 & 66029 \\
 \end{tabular}
-\end{center}  
+\end{table}
+ 
+With our choice of tolerance ($\epsilon = 1*10^{-8}$) our program runs $63376$ times to reach the given precision. This corresponds to the number of similarity transformations needed. We see that if we decrease our $\epsilon$, the rotation must be performed more times to achieve the same precision. 
+
+Running for different $n-values$ we see that the number of Jacobi rotations needed increases as $n$ increases. 
 
 We see that, roughly estimated, the number of transformations needed as function of the dimensionality of the matrix goes as $n^2$. \\
 
 
-To check our results we used the armadillo function $eig\_sym$, that gives us both the eigenvalues and the eigenvector of our symmetric matrix. We find that the three lowest eigenvalues are $2.999, 6.999$ and $10.999$, which coincides with the results we found from our Jacobi method. By comparing to the analytical values for the eigenvalues, we see that we are within good precision. We see that the values have four leading digit, which we needed a $n=196$-matrix and $63376$ to reach in our Jacobi rotation program. However, the armadillo program runs much faster than our Jacobi solver. We found that for a $n=196$ matrix the armadillo program needed $0.0349 s$ to do the calculations, while our program used $16.3448 s$. We see that for small matrices the precision is low when using the Jacobi method, and for large matrices the time needed to reach a good precision is high. \\
+To check our results we used the armadillo function $eig\_sym$, that gives us both the eigenvalues and the eigenvector of our symmetric matrix. We find that the three lowest eigenvalues are $2.999, 6.999$ and $10.999$, which coincides with the results we found from our Jacobi method. We see that the values have four leading digit, which we needed a $n=196$-matrix and $63376$ to reach in our Jacobi rotation program. However, the armadillo program runs much faster than our Jacobi solver. We found that for a $n=196$ matrix the armadillo program needed $0.0349 s$ to do the calculations, while our program used $16.3448 s$. We see that for small matrices the precision is low when using the Jacobi method, and for large matrices the time needed to reach a good precision is high. \\
 
-
-To study two electrons in a harmonic oscillator well which also interact via a repulsive Coulomb interaction, we used our code from subproblem (a), but changed the potential to $$V = \omega_r^2 \rho^2 + \frac{1}{\rho} $$
-
-
-When running for $n=196$ and $rho_{max} = 5$, as before, we found the lowest three eigenvalues for different $\omega.$
 \\
 
- 
-\begin{table} 
+\begin{table} [h!]
 \caption{The three lowest eigenvalues}
 \centering
-\begin{tabular}{l | l l l}
+\begin{tabular}{l | l l l} 
 \hline
 $\omega_r$ & & &\\
 \hline
@@ -212,11 +221,10 @@ $\omega_r$ & & &\\
 
 \\
 
-To see if the values we got where reasonable we checked it against a closed form solution. By turning off the coulomb interaction $\frac{1}{\rho}$ and using $\omega_r = 5$ we got the three lowest eigenvalues $\lambda_0 = 14,99, \lambda_1 = 34,96, \lambda_2 = 54,94$. This looks a lot like the eigenvalues we got studying the single-electron, just with a factor $\omega$. 
-This seems resonable, as the eigenvalues of the Hamiltonian essensially is the energy. From the expression ${E_n}_l = \hbar\omega(2n + l + \frac{3}{2})$, we see that the eigenvalues for the single particle is proposional with $\omega$. So turning of the coulomb interaction, gives us simply the eigenvalues for the single particle. 
-When turning on the potential, the term $\omega_r^2\rho^2$ dominates for large $\omega$'s, but we get a small contribution from the term $ 1/ \rho$.
+To study two electrons in a harmonic oscillator well which also interact via a repulsive Coulomb interaction, we used our code from subproblem (a), but changed the potential to $$V = \omega_r^2 \rho^2 + \frac{1}{\rho} $$
 
-To find the eigenvalues and eigenfunctions of the two-electron wavefunction we used, as for the one-electron case, the armadillo function $eig_sym$. We passed the eigenvectors that corresponds to the three lowest eigenvalues to a file $data.dat$ and made a python script that read out and plotted these vectors against its index. To make it easy to change variables we compiled, ran and gave the values of $n$, $\omega$ and $\rho$ from within our python script.    
+
+When running for $n=196$ and $rho_{max} = 5$, as before, we found the lowest three eigenvalues for different $\omega.$
 
 
 Plotting the eigenvectors corresponding to the three lowest eigenvalues.\\
@@ -224,14 +232,32 @@ Plotting the eigenvectors corresponding to the three lowest eigenvalues.\\
 \includegraphics[scale=0.5]{omega1rhomax5}
 \includegraphics[scale=0.5]{omega1rhomax15}
 
-Our choice of $\rho_{max}$ depends on the width of the wavepacket. If we have a wide wavepacket we must choose a large $\rho$ to get all the relevant data. We see that the wavepacket reduces quite quickly to zero, and thus we do not need a too large $\rho$.  
-
-The width of the wavepacket is dependent on the frequency, potential $V = m \omega ^ 2$. The frequency decides the width of the curve, and thus influences our choice of $\rho$. \\ 
-
-When you increase omega the potential increases strongly - and thus it will be much less likely that the particles will be located far from each other.  \\
 
 \includegraphics[scale=0.5]{omega5rhomax5}
 \includegraphics[scale=0.5]{omega001rhomax5}
 \includegraphics[scale=0.5]{omega001rhomax1}
+
+The first thing we notice from the plots, is how the wavefunction changes as $\omega$ and $\rho_{max}$ changes. When we choose a big $\omega$, the wavefunction goes faster to zero. When $\omega$ is small, we look almost at the regular wavefunctions for a harmonic oscillator. 
+
+\subsection{Discussion}
+
+We used two different methods to find the eigenvalues. Both Jacobi and $eig\_sym$ gave good approximations for the eigenvalues. But $eig\_sym$ where much faster then our program. We do not know specifically how the $eig\_sym$ function workes, but there is no mystery to why the Jacobi-method is so slow. For every iteration, we must go through the entire matrix and find the lowest non-diagonal element. We then perform the rotation, and look through the matrix again. This takes a lot of time and calculations. 
+And we must use large n's, unless we get very small step lenghts. Since we are trying to find the discutized approximation to the Schr\"odinger equation this would give us a very poor approximation.
+
+When we looked at the two-paticle system, we found the eigenvalues as well. 
+To see if the values we got where reasonable we checked it against a closed form solution. By turning off the coulomb interaction $\frac{1}{\rho}$ and using $\omega_r = 5$ we got the three lowest eigenvalues $\lambda_0 = 14,99, \lambda_1 = 34,96, \lambda_2 = 54,94$. This looks a lot like the eigenvalues we got studying the single-electron, just with a factor $\omega$. 
+This seems resonable, as the eigenvalues of the Hamiltonian essensially is the energy. From the expression ${E_n}_l = \hbar\omega(2n + l + \frac{3}{2})$, we see that the eigenvalues for the single particle is proposional with $\omega$. So turning of the coulomb interaction, gives us simply the eigenvalues for the single particle. 
+When turning on the potential, the term $\omega_r^2\rho^2$ dominates for large $\omega$'s, but we get a small contribution from the term $ 1/ \rho$. 
+
+Our final task was to plot the wavefunction. Here we could see how the wavepacket depended on both $\omega$ and $\rho_{max}$. 
+Our choice of $\rho_{max}$ depends on the width of the wavepacket. If we have a wide wavepacket we must choose a large $\rho$ to get all the relevant data.   
+The width of the wavepacket is dependent on the frequency, potential $V = m \omega ^ 2$. The frequency decides the width of the curve, and thus influences our choice of $\rho$. \\ 
+
+An other interesting observation was how the system behaved as we changed the potentail force. 
+When we increase omega the potential increases strongly - and thus it will be much less likely that the particles will be located far from each other. Two electrons will repel each other, but with a very strong potensial they will be pulled more closely toward one another. This is why we see that the wavepacket reduces quite quickly to zero, and thus we do not need a too large $\rho$.
+
+For the lowest state, we see that the wavefunction never crosses the x-axes. This is because the second derivative for function is never negative. The second derivative is essencially the Schr\"odinger equation. If we were to plot the probability distribution we would see that the probability of finding the electrons around zero would be large. The peak would actually be at zero. But as the energy for the system increases, meaning we look at the second or third state, or larger states, the probability of locating the particles around zero decreases. 
+
+
 
 \end{document}
