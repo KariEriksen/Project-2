@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <algorithm>   // std:: max_element
 #include <armadillo>
+#include <iomanip>
 
 using namespace std;
 using namespace arma;
@@ -16,6 +17,7 @@ void rotation (mat &, int, int, int n);
 int main(int argc, char* argv[])
 {
     int n = atoi(argv[1]);
+    double omega = atof(argv[2]);
     int i, k, l;
 
     double rho_min = 0.0;
@@ -33,7 +35,7 @@ int main(int argc, char* argv[])
     for(k=0; k<n; k++) {
 
         rho[k] = rho_min + (k+1)*h;
-        V[k] = rho[k]*rho[k];
+        V[k] = omega*omega*rho[k]*rho[k]; //+ 1.0/rho[k];
 
         for (l=0; l<n; l++){
 
@@ -65,10 +67,10 @@ int main(int argc, char* argv[])
         aij = off_diagonal(A, &k, &l, n);
         counter ++;
     }
-    cout << counter << endl;
+
     // Finishing clock
     finish = clock();
-    //cout << (finish - start)/(double) CLOCKS_PER_SEC << endl;
+    cout << (finish - start)/(double) CLOCKS_PER_SEC << endl;
 
     //cout << counter << endl;
 
@@ -77,7 +79,7 @@ int main(int argc, char* argv[])
         lambda[i] =(A(i,i));
     }
     lambda = sort(lambda);
-    cout << "Three lowest eigenvalues: " << lambda(0) << "  "  << lambda(1) << "   "  <<  lambda(2) << endl;
+    cout << "Three lowest eigenvalues: " << setprecision(15) <<lambda(0) << "  "  << lambda(1) << "   "  <<  lambda(2) << endl;
     return 0;
 }
 
